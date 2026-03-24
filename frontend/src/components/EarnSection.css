@@ -1,0 +1,168 @@
+.earn-section {
+  background-color: #0A1F44; /* Primary Deep Blue */
+  color: var(--white);
+}
+
+.earn-section .section-title {
+  color: var(--white);
+}
+
+.earn-container {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2xl);
+}
+
+.earn-content {
+  flex: 1;
+}
+
+.earn-subtitle {
+  font-size: 1.2rem;
+  color: #c7d2fe;
+  margin-bottom: var(--space-xl);
+  line-height: 1.6;
+}
+
+.earnings-calculator {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: var(--space-lg);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-lg);
+}
+
+.earnings-calculator h3 {
+  font-size: 1.1rem;
+  margin-bottom: var(--space-md);
+  color: #e0e7ff;
+}
+
+.earnings-stats {
+  display: flex;
+  gap: var(--space-xl);
+  margin-bottom: var(--space-sm);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--accent); /* Bright Green */
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #c7d2fe;
+  margin-top: var(--space-xs);
+}
+
+.earnings-note {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.earn-cta {
+  font-size: 1.1rem;
+  padding: var(--space-md) var(--space-xl);
+}
+
+.earn-visual {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.earnings-mockup {
+  width: 100%;
+  max-width: 400px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.mockup-card {
+  background: var(--white);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+  color: var(--text-dark);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(20px);
+  opacity: 0.95;
+  transition: all 0.3s ease;
+}
+
+.mockup-card:hover {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.balance-card {
+  padding: var(--space-xl);
+  text-align: center;
+  margin-bottom: var(--space-md);
+  transform: translateX(0);
+}
+
+.card-header {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin-bottom: var(--space-xs);
+}
+
+.card-balance {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--primary);
+  margin-bottom: var(--space-xs);
+}
+
+.card-trend {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.booking-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.booking-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.booking-info strong {
+  font-size: 0.95rem;
+  color: var(--text-dark);
+}
+
+.booking-info span {
+  font-size: 0.8rem;
+  color: var(--text-light);
+}
+
+.booking-price {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.booking-price.payout {
+  color: var(--text-dark);
+}
+
+@media (max-width: 992px) {
+  .earn-container {
+    flex-direction: column;
+  }
+  .earnings-mockup {
+    margin-top: var(--space-xl);
+  }
+}

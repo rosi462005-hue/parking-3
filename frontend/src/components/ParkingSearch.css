@@ -1,0 +1,77 @@
+.parking-search-section {
+  background-color: var(--bg-light);
+  min-height: 400px;
+}
+
+.find-space-btn {
+  margin-top: 1.5rem;
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.find-space-btn.loading {
+  opacity: 0.8;
+  cursor: wait;
+}
+
+.results-container {
+  margin-top: 3rem;
+}
+
+.status-message {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.2rem;
+  color: var(--text-muted);
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.status-message.error {
+  color: #dc3545;
+}
+
+.status-message.warning {
+  color: #856404;
+  background-color: #fff3cd;
+}
+
+.listings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--space-lg);
+}
+
+.listing-result-wrapper {
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.listing-result-wrapper:hover {
+  transform: translateY(-5px);
+}
+
+.distance-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background-color: var(--primary-color);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  z-index: 2;
+}
+
+@media (max-width: 768px) {
+  .listings-grid {
+    grid-template-columns: 1fr;
+  }
+}

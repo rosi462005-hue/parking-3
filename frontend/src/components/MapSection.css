@@ -1,0 +1,226 @@
+.map-section {
+  background-color: var(--white);
+}
+
+.map-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: var(--space-xl);
+  flex-wrap: wrap;
+  gap: var(--space-md);
+}
+
+.map-filters {
+  display: flex;
+  gap: var(--space-sm);
+}
+
+.filter-select {
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-md);
+  border: 1px solid #e5e7eb;
+  background-color: var(--white);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  cursor: pointer;
+  outline: none;
+}
+
+.map-container {
+  width: 100%;
+  height: 600px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  background-color: #f3f4f6;
+  border: 1px solid #e5e7eb;
+}
+
+.map-placeholder {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  background-image: radial-gradient(#cbd5e1 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.mock-map-bg {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: url('https://upload.wikimedia.org/wikipedia/commons/b/b0/Openstreetmap_map_example.png') center/cover no-repeat;
+  opacity: 0.5; /* placeholder image imitation */
+}
+
+.map-marker {
+  position: absolute;
+  z-index: 10;
+}
+
+.marker-pin {
+  width: 24px;
+  height: 24px;
+  background-color: var(--primary);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 2px solid var(--white);
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.map-marker.active .marker-pin,
+.marker-pin:hover {
+  background-color: var(--accent);
+  transform: rotate(-45deg) scale(1.2);
+  z-index: 20;
+}
+
+.marker-popup {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--white);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  text-align: center;
+  z-index: 30;
+  animation: popupSlide 0.2s ease-out;
+}
+
+.marker-popup h4 {
+  margin-bottom: var(--space-xs);
+  font-size: 1.1rem;
+}
+
+.marker-popup .price-tag {
+  color: var(--secondary);
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin-bottom: var(--space-sm);
+}
+
+@keyframes popupSlide {
+  from { opacity: 0; transform: translate(-50%, 10px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.map-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: var(--space-lg);
+  height: 600px;
+}
+
+.listings-sidebar {
+  overflow-y: auto;
+  padding-right: var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.listings-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.listings-sidebar::-webkit-scrollbar-thumb {
+  background-color: #e5e7eb;
+  border-radius: 3px;
+}
+
+.loading-state, .error-state, .empty-state {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+  background: #f9fafb;
+  border-radius: var(--radius-md);
+  padding: var(--space-xl);
+}
+
+.error-state {
+  color: #dc2626;
+  background: #fef2f2;
+}
+
+.map-overlay-info {
+  position: absolute;
+  bottom: var(--space-lg);
+  left: var(--space-lg);
+  z-index: 10;
+  max-width: 300px;
+  animation: slideUp 0.3s ease-out;
+}
+
+.overlay-card {
+  background: var(--white);
+  padding: var(--space-md);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  border-left: 4px solid var(--primary);
+  position: relative;
+}
+
+.overlay-card h5 {
+  margin-bottom: 4px;
+  font-size: 1rem;
+}
+
+.overlay-card p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: var(--space-md);
+}
+
+.btn-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 992px) {
+  .map-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+  
+  .listings-sidebar {
+    height: 400px;
+    order: 2;
+  }
+  
+  .map-container {
+    height: 400px;
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .map-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .map-filters {
+    width: 100%;
+    flex-direction: column;
+  }
+}

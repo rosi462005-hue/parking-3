@@ -1,0 +1,190 @@
+.list-space-section {
+  background-color: var(--bg-light);
+}
+
+.list-space-card {
+  max-width: 600px;
+  margin: 0 auto;
+  background: var(--white);
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.list-space-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-group label {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(46, 196, 182, 0.2);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+@media (max-width: 500px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+.btn-large {
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.success-message {
+  padding: 2rem 0;
+}
+
+.success-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.success-message h3 {
+  color: var(--accent);
+  margin-bottom: 0.5rem;
+}
+
+/* Image Upload Styles */
+.image-upload-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.image-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.image-upload-label {
+  display: block;
+  width: 100%;
+  height: 200px;
+  border: 2px dashed var(--border-color);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.image-upload-label:hover {
+  border-color: var(--primary);
+  background: rgba(46, 196, 182, 0.05);
+}
+
+.upload-placeholder {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+  gap: 0.5rem;
+}
+
+.upload-icon {
+  font-size: 2.5rem;
+}
+
+.image-preview {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.image-preview img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.change-image-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 0.5rem;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.image-preview:hover .change-image-overlay {
+  opacity: 1;
+}
+
+/* Vehicle Type Selector */
+.vehicle-type-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.vehicle-type-btn {
+  padding: 10px 8px;
+  border: 2px solid var(--border-color, #e5e7eb);
+  border-radius: var(--radius-md, 10px);
+  background: #fff;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  text-align: center;
+}
+
+.vehicle-type-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+  background: #f0fdf4;
+}
+
+.vehicle-type-btn.active {
+  border-color: var(--primary);
+  background: #ecfdf5;
+  color: var(--primary);
+}
+
