@@ -1,16 +1,16 @@
 import React from 'react';
 import Hero from '../components/Hero';
-import ValueProp from '../components/ValueProp';
+import WhyParkShare from '../components/WhyParkShare';
+import ParkingSearch from '../components/ParkingSearch';
 import HowItWorks from '../components/HowItWorks';
-import ListSpace from '../components/ListSpace';
 
 const Home = () => {
   return (
     <>
       <Hero />
-      <ValueProp />
+      <WhyParkShare />
+      <ParkingSearch />
       <HowItWorks />
-      <ListSpace />
     </>
   );
 };

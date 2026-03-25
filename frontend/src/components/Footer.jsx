@@ -4,16 +4,6 @@ import './Footer.css';
 const Footer = () => {
   return (
     <>
-      <section className="cta-section section text-center">
-        <div className="container">
-          <h2 className="cta-title">Want to Rent Out Your Space?</h2>
-          <p className="cta-subtitle">List your parking spot in minutes and start earning today.</p>
-          <div className="cta-buttons">
-            <button className="btn btn-primary" onClick={() => document.getElementById('earn')?.scrollIntoView({ behavior: 'smooth' })}>List Your Space Now</button>
-          </div>
-        </div>
-      </section>
-
       <footer className="main-footer section">
         <div className="container footer-container">
           <div className="footer-brand">

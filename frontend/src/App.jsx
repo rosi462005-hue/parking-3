@@ -6,6 +6,8 @@ import Footer from './components/Footer';
 import AuthModal from './components/AuthModal';
 import Home from './pages/Home';
 import SearchPage from './pages/SearchPage';
+import ListPage from './pages/ListPage';
+import ResultsPage from './pages/ResultsPage';
 
 function App() {
   const [isAuthOpen, setIsAuthOpen] = React.useState(false);
@@ -29,11 +31,7 @@ function App() {
             Park<span>Share</span>
           </Link>
         <nav className="nav-links">
-          <Link to="/search" className="nav-link">Find Space</Link>
-          <a href="/#how-it-works" className="nav-link">How it Works</a>
-          <Link to="/search" className="nav-link">Locations</Link>
-          <a href="/#earn" className="nav-link">Earn</a>
-          
+
           {user ? (
             <div className="user-menu">
               <span className="user-greeting">Hi, {user.name}</span>
@@ -53,6 +51,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/search" element={<SearchPage />} />
+          <Route path="/list" element={<ListPage />} />
+          <Route path="/results" element={<ResultsPage />} />
         </Routes>
       </main>
 
