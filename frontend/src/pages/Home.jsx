@@ -1,7 +1,6 @@
 import React from 'react';
 import Hero from '../components/Hero';
 import WhyParkShare from '../components/WhyParkShare';
-import ParkingSearch from '../components/ParkingSearch';
 import HowItWorks from '../components/HowItWorks';
 
 const Home = () => {
@@ -9,7 +8,6 @@ const Home = () => {
     <>
       <Hero />
       <WhyParkShare />
-      <ParkingSearch />
       <HowItWorks />
     </>
   );

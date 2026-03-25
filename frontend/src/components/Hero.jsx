@@ -16,7 +16,7 @@ const Hero = () => {
           
           <div className="hero-cta-group" style={{ justifyContent: 'flex-start' }}>
             <Link to="/search" className="btn btn-primary">Find Space</Link>
-            <button className="btn btn-secondary" onClick={() => document.getElementById('earn')?.scrollIntoView({ behavior: 'smooth' })}>List Your Space</button>
+            <Link to="/list" className="btn btn-primary">List Your Space</Link>
           </div>
         </div>
       </div>

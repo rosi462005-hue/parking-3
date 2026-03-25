@@ -89,7 +89,6 @@ const SearchPage = () => {
             >
               {searching ? 'Sorting by Distance...' : 'Find Space Nearby'}
             </button>
-            <Link to="/list" className="btn btn-secondary">List Your Space</Link>
           </div>
         </div>
 

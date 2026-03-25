@@ -11,7 +11,7 @@ const ParkingSearch = () => {
           <p className="section-subtitle">Find and book parking spots near your current location.</p>
           <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', marginTop: '20px' }}>
             <Link to="/search" className="btn btn-primary">Find Space</Link>
-            <Link to="/list" className="btn btn-secondary">List Your Space</Link>
+            <Link to="/list" className="btn btn-primary">List Your Space</Link>
           </div>
         </div>
       </div>
