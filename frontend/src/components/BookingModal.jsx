@@ -26,15 +26,19 @@ const BookingModal = ({ listing, onClose, onConfirm }) => {
     if (!startTime) return alert('Please select a start time.');
     setLoading(true);
     try {
-      const res = await fetch('http://127.0.0.1:5000/api/bookings', {
+      const token = localStorage.getItem('parkshare_token');
+      const res = await fetch('http://127.0.0.1:8000/api/bookings/', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+        },
         body: JSON.stringify({
-          listingId: listing.id,
-          startTime,
-          duration,
-          vehicleType,
-          totalCost,
+          listing_id: listing.id,
+          start_time: startTime,
+          duration_hours: duration,
+          vehicle_type: vehicleType,
+          total_cost: totalCost,
         }),
       });
       if (!res.ok) throw new Error('Booking failed');

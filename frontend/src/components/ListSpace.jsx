@@ -37,25 +37,27 @@ const ListSpace = () => {
     const listingData = {
       title: formData.title,
       location: formData.address,
-      pricePerHour: parseInt(formData.price),
-      vehicleType,
+      price_per_hour: parseInt(formData.price),
+      vehicle_type: vehicleType,
       type: formData.type,
-      ownerId: 'user_' + Math.random().toString(36).substr(2, 9),
       lat: 19.0760 + (Math.random() - 0.5) * 0.1,
       lng: 72.8777 + (Math.random() - 0.5) * 0.1
     };
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/api/listings', {
+      const token = localStorage.getItem('parkshare_token');
+      const response = await fetch('http://127.0.0.1:8000/api/listings/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
         },
         body: JSON.stringify(listingData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create listing');
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || 'Failed to create listing');
       }
 
       console.log('Listing created successfully');
