@@ -40,7 +40,7 @@ const HowItWorks = () => {
               <div className="step-card">
                 <div className="step-icon">⚡</div>
                 <h3>3. Book Instantly</h3>
-                <p>Reserve and pay securely through the app. Just drive in and park.</p>
+                <p>Reserve and pay securely on arrival. Just drive in and park.</p>
               </div>
             </div>
           ) : (

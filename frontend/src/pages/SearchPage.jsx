@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import '../components/ParkingSearch.css';
 import ListingCard from '../components/ListingCard';
 import BookingModal from '../components/BookingModal';
@@ -11,6 +11,7 @@ const SearchPage = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [searching, setSearching] = useState(false);
   const [selectedListing, setSelectedListing] = useState(null);
+  const navigate = useNavigate();
 
   const fetchAllListings = async () => {
     setLoading(true);
