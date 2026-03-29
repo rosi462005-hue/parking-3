@@ -140,5 +140,22 @@ async def update_listing(
 @router.delete("/{listing_id}", status_code=204)
 async def delete_listing(listing_id: str, current=Depends(get_current_user)):
     user, token = current
+    # Use authenticated client so RLS can evaluate the user's JWT
     db = get_user_client(token)
-    db.table("listings").delete().eq("id", listing_id).eq("owner_id", str(user.id)).execute()
+    
+    # Check if user is the admin
+    is_admin = user.email == "admin@parkshare.com"
+    
+    if is_admin:
+        query = db.table("listings").delete().eq("id", listing_id)
+    else:
+        query = db.table("listings").delete().eq("id", listing_id).eq("owner_id", str(user.id))
+        
+    response = query.execute()
+    
+    if not response.data:
+        raise HTTPException(
+            status_code=403, 
+            detail="Deletion failed. Either the listing does not exist, or you lack permissions (RLS blocked it)."
+        )
+    return response.data

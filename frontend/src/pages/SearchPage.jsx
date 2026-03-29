@@ -50,7 +50,7 @@ const SearchPage = () => {
     setError(null);
 
     if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser");
+      setError("Geolocation is not supported by your browser.");
       setSearching(false);
       return;
     }
@@ -60,18 +60,21 @@ const SearchPage = () => {
         const { latitude, longitude } = position.coords;
         setUserLocation({ lat: latitude, lng: longitude });
         
-        // Sort existing listings by distance
-        const processed = [...listings].map(spot => ({
-          ...spot,
-          distance: getDistance(latitude, longitude, spot.lat, spot.lng)
-        })).sort((a, b) => a.distance - b.distance);
+        // Sort and filter existing listings by distance (e.g. <= 5km)
+        const processed = [...listings]
+          .map(spot => ({
+            ...spot,
+            distance: getDistance(latitude, longitude, spot.lat, spot.lng)
+          }))
+          .filter(spot => isNaN(spot.distance) || spot.distance <= 5) // Handle spots without lat/lng gracefully or within 5km
+          .sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
         
+        setListings(processed);
         setSearching(false);
-        navigate('/results', { state: { listings: processed, userLocation: {lat: latitude, lng: longitude} } });
       },
-      () => {
+      (geoError) => {
         setSearching(false);
-        navigate('/results', { state: { listings: listings, userLocation: null } });
+        setError("Location access denied. Please enable location to find nearby spaces.");
       }
     );
   };

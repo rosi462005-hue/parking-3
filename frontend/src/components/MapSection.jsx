@@ -69,6 +69,9 @@ const MapSection = () => {
                     listing={listing} 
                     onClick={handleListingClick}
                     isActive={activeListing?.id === listing.id}
+                    onDelete={(deletedId) => {
+                      setListings(prev => prev.filter(l => l.id !== deletedId));
+                    }}
                   />
                 ))}
               </div>
