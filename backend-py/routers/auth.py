@@ -58,9 +58,14 @@ async def login(body: UserLogin):
     if not user or not session:
         raise HTTPException(status_code=401, detail="Invalid email or password.")
 
-    # Fetch profile name
-    profile_resp = supabase.table("profiles").select("name").eq("id", str(user.id)).single().execute()
-    name = profile_resp.data.get("name", user.email.split("@")[0]) if profile_resp.data else user.email.split("@")[0]
+    # Fetch profile name (safely skip if database isn't fully ready yet)
+    name = user.email.split("@")[0]
+    try:
+        profile_resp = supabase.table("profiles").select("name").eq("id", str(user.id)).single().execute()
+        if hasattr(profile_resp, 'data') and profile_resp.data:
+            name = profile_resp.data.get("name", name)
+    except Exception as e:
+        print(f"Warning: Profile lookup failed: {e}")
 
     return TokenResponse(
         token=session.access_token,

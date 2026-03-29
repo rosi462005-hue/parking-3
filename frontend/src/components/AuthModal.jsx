@@ -23,6 +23,10 @@ const AuthModal = ({ isOpen, onClose, mode, setMode, onLogin }) => {
   };
 
   const handleSubmit = async (e) => {
+    e.preventDefault(); // Prevent page refresh on form submit
+    setIsLoading(true);
+    setError('');
+
     const validationError = validate();
     if (validationError) {
       setError(validationError);
@@ -31,7 +35,7 @@ const AuthModal = ({ isOpen, onClose, mode, setMode, onLogin }) => {
     }
 
     try {
-      const endpoint = mode === 'login' ? '/api/auth/login/' : '/api/auth/register/';
+      const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
       const body = mode === 'login' ? { email, password } : { name, email, password };
 
       const response = await fetch(`http://127.0.0.1:8000${endpoint}`, {
@@ -130,10 +134,13 @@ const AuthModal = ({ isOpen, onClose, mode, setMode, onLogin }) => {
         <p className="modal-footer-text">
           {mode === 'login' ? "Don't have an account? " : "Already have an account? "}
           <button 
+            type="button"
             className="link-btn" 
             onClick={() => {
               setMode(mode === 'login' ? 'signup' : 'login');
               setError('');
+              setPassword('');
+              setConfirmPassword('');
             }}
           >
             {mode === 'login' ? 'Create Account' : 'Login'}
