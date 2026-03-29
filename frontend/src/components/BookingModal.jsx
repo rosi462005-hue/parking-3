@@ -10,7 +10,20 @@ const BookingModal = ({ listing, onClose, onConfirm }) => {
 
   if (!listing) return null;
 
-  const totalCost = listing.pricePerHour * duration;
+  // 1. Ensure rate is a valid number: Extract numeric value, remove symbols (₹), convert with parseFloat
+  const rawRateStr = String(listing.pricePerHour || listing.price_per_hour || '0').replace('₹', '').replace(/[^0-9.]/g, '');
+  const rateParsed = parseFloat(rawRateStr);
+
+  // 2. Ensure duration is a valid number: Extract numeric value
+  // Note: the prompt requested parseInt, but I am using parseFloat here so that half-hour (0.5) bookings don't cast to 0
+  const rawDurationStr = String(duration).replace(/[^0-9.]/g, '');
+  const durationParsed = parseFloat(rawDurationStr);
+
+  // 3. Fix calculation & 4. Add fallback to 0 instead of NaN
+  let totalCost = 0;
+  if (!isNaN(rateParsed) && !isNaN(durationParsed)) {
+    totalCost = rateParsed * durationParsed;
+  }
 
   // Compute end time from startTime + duration
   const getEndTime = () => {
@@ -87,7 +100,7 @@ const BookingModal = ({ listing, onClose, onConfirm }) => {
               </div>
               <div className="bm-info-item">
                 <span className="bm-info-label">💵 Rate</span>
-                <span className="bm-info-value primary">₹{listing.pricePerHour} / hr</span>
+                <span className="bm-info-value primary">₹{Number(rateParsed) ? rateParsed : 0} / hr</span>
               </div>
               <div className="bm-info-item">
                 <span className="bm-info-label">🏷 Type</span>
@@ -155,8 +168,8 @@ const BookingModal = ({ listing, onClose, onConfirm }) => {
 
             {/* Cost breakdown */}
             <div className="bm-cost-box">
-              <div className="bm-cost-row">
-                <span>₹{listing.pricePerHour} × {duration} hr{duration > 1 ? 's' : ''}</span>
+               <div className="bm-cost-row">
+                <span>₹{Number(rateParsed) ? rateParsed : 0} × {durationParsed} hr{durationParsed > 1 ? 's' : ''}</span>
                 <span>₹{totalCost}</span>
               </div>
               <div className="bm-cost-row bm-cost-total">
