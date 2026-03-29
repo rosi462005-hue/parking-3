@@ -183,7 +183,7 @@ const BookingModal = ({ listing, onClose, onConfirm }) => {
               onClick={handleConfirm}
               disabled={!listing.available || loading}
             >
-              {loading ? 'Confirming...' : listing.available ? `Confirm & Pay ₹${totalCost}` : 'Not Available'}
+              {loading ? 'Confirming...' : listing.available ? 'Confirm' : 'Not Available'}
             </button>
           </>
         )}
