@@ -13,6 +13,8 @@ const ListSpace = () => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -33,16 +35,36 @@ const ListSpace = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setError(null);
+
+    // 1. Validate Required Fields Front-end
+    if (!formData.title || formData.title.length < 3) {
+      setError('Space Title must be at least 3 characters.');
+      return;
+    }
+    if (!formData.address || formData.address.length < 3) {
+      setError('Full Address must be at least 3 characters.');
+      return;
+    }
+    const parsedPrice = parseInt(formData.price);
+    if (isNaN(parsedPrice) || parsedPrice <= 0) {
+      setError('Please provide a valid positive price.');
+      return;
+    }
+
+    // 2. Form payload with all necessary fields
     const listingData = {
       title: formData.title,
       location: formData.address,
-      price_per_hour: parseInt(formData.price),
+      description: formData.description || null,
+      price_per_hour: parsedPrice,
       vehicle_type: vehicleType,
       type: formData.type,
       lat: 19.0760 + (Math.random() - 0.5) * 0.1,
       lng: 72.8777 + (Math.random() - 0.5) * 0.1
     };
+
+    setIsSubmitting(true);
 
     try {
       const token = localStorage.getItem('parkshare_token');
@@ -57,7 +79,14 @@ const ListSpace = () => {
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        throw new Error(err.detail || 'Failed to create listing');
+        let errMsg = 'Failed to create listing.';
+        // Extract FastAPI validation details if present
+        if (err.detail) {
+          errMsg = Array.isArray(err.detail) 
+            ? err.detail.map(d => d.msg).join(', ') 
+            : err.detail;
+        }
+        throw new Error(errMsg);
       }
 
       console.log('Listing created successfully');
@@ -70,9 +99,12 @@ const ListSpace = () => {
         setImage(null);
         setImagePreview(null);
       }, 3000);
-    } catch (error) {
-      console.error('Error creating listing:', error);
-      alert('Failed to create listing. Please try again.');
+    } catch (err) {
+      console.error('Error creating listing:', err);
+      // Display the specific message instead of alert
+      setError(err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -93,6 +125,11 @@ const ListSpace = () => {
             </div>
           ) : (
             <form className="list-space-form" onSubmit={handleSubmit}>
+              {error && (
+                <div className="error-message" style={{ color: '#d9534f', backgroundColor: '#fdf7f7', padding: '10px', borderRadius: '5px', marginBottom: '15px', border: '1px solid #d9534f', textAlign: 'center' }}>
+                  {error}
+                </div>
+              )}
               <div className="form-group">
                 <label htmlFor="title">Space Title</label>
                 <input 
@@ -206,8 +243,8 @@ const ListSpace = () => {
                 </div>
               </div>
 
-              <button type="submit" className="btn btn-primary w-100 btn-large">
-                Create Listing
+              <button type="submit" className="btn btn-primary w-100 btn-large" disabled={isSubmitting}>
+                {isSubmitting ? 'Creating...' : 'Create Listing'}
               </button>
             </form>
           )}
