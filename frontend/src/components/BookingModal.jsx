@@ -4,7 +4,7 @@ import './BookingModal.css';
 const BookingModal = ({ listing, onClose, onConfirm }) => {
   const [startTime, setStartTime] = useState('');
   const [duration, setDuration] = useState(1);
-  const [vehicleType, setVehicleType] = useState('2-wheeler');
+  const [vehicleType, setVehicleType] = useState(listing?.vehicle_type || listing?.vehicleType || '4-wheeler');
   const [bookingSuccess, setBookingSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -104,17 +104,25 @@ const BookingModal = ({ listing, onClose, onConfirm }) => {
                   <span className="bm-info-value" style={{ fontWeight: 'bold' }}>{ownerPhone}</span>
                 </div>
               )}
-              <div className="bm-info-item">
-                <span className="bm-info-label">📍 Location</span>
-                <a 
-                  href={`https://www.google.com/maps?q=${encodeURIComponent(listing.location)}`} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="bm-info-value" 
-                  style={{ color: '#007bff', textDecoration: 'underline' }}
-                >
-                  {listing.location}
-                </a>
+              <div className="bm-info-item" style={{ gridColumn: '1 / -1' }}>
+                <span className="bm-info-label">📍 Full Address</span>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                  <span className="bm-info-value" style={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: '1.4' }}>
+                    {listing.location}
+                  </span>
+                  <a 
+                    href={listing.lat && listing.lng 
+                      ? `https://www.google.com/maps/dir/?api=1&destination=${listing.lat},${listing.lng}`
+                      : `https://www.google.com/maps?q=${encodeURIComponent(listing.location)}`
+                    } 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="btn btn-secondary" 
+                    style={{ padding: '6px 12px', fontSize: '0.85rem', whiteSpace: 'nowrap', textDecoration: 'none' }}
+                  >
+                    🗺️ Get Directions
+                  </a>
+                </div>
               </div>
               <div className="bm-info-item">
                 <span className="bm-info-label">💵 Rate</span>
@@ -160,17 +168,10 @@ const BookingModal = ({ listing, onClose, onConfirm }) => {
                 <div className="bm-vehicle-selector">
                   <button
                     type="button"
-                    className={`bm-vehicle-btn ${vehicleType === '2-wheeler' ? 'active' : ''}`}
-                    onClick={() => setVehicleType('2-wheeler')}
+                    className="bm-vehicle-btn active"
+                    disabled
                   >
-                    🛵 2-Wheeler
-                  </button>
-                  <button
-                    type="button"
-                    className={`bm-vehicle-btn ${vehicleType === '4-wheeler' ? 'active' : ''}`}
-                    onClick={() => setVehicleType('4-wheeler')}
-                  >
-                    🚗 4-Wheeler
+                    {vehicleType === '2-wheeler' ? '🛵 2-Wheeler' : vehicleType === '4-wheeler' ? '🚗 4-Wheeler' : '✅ Any Vehicle (Both)'}
                   </button>
                 </div>
               </div>

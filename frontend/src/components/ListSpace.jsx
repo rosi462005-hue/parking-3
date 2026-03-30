@@ -8,9 +8,11 @@ const ListSpace = () => {
     price: '',
     type: 'driveway',
     description: '',
-    phone: '' // New phone field
+    phone: '', // New phone field
+    lat: null, // Exact Geolocation state
+    lng: null
   });
-  const [vehicleType, setVehicleType] = useState('both');
+  const [vehicleType, setVehicleType] = useState('4-wheeler');
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [submitted, setSubmitted] = useState(false);
@@ -72,8 +74,8 @@ const ListSpace = () => {
       price_per_hour: parsedPrice,
       vehicle_type: vehicleType,
       type: formData.type,
-      lat: 19.0760 + (Math.random() - 0.5) * 0.1,
-      lng: 72.8777 + (Math.random() - 0.5) * 0.1
+      lat: formData.lat || (19.0760 + (Math.random() - 0.5) * 0.1),
+      lng: formData.lng || (72.8777 + (Math.random() - 0.5) * 0.1)
     };
 
     setIsSubmitting(true);
@@ -107,7 +109,7 @@ const ListSpace = () => {
       // Reset form after a delay
       setTimeout(() => {
         setSubmitted(false);
-        setFormData({ title: '', address: '', price: '', type: 'driveway', description: '', phone: '' });
+        setFormData({ title: '', address: '', price: '', type: 'driveway', description: '', phone: '', lat: null, lng: null });
         setImage(null);
         setImagePreview(null);
       }, 3000);
@@ -188,8 +190,7 @@ const ListSpace = () => {
                 <div className="vehicle-type-selector">
                   {[
                     { value: '2-wheeler', label: '🛵 2-Wheeler' },
-                    { value: '4-wheeler', label: '🚗 4-Wheeler' },
-                    { value: 'both',      label: '✅ Both'      },
+                    { value: '4-wheeler', label: '🚗 4-Wheeler' }
                   ].map(opt => (
                     <button
                       key={opt.value}
@@ -238,7 +239,7 @@ const ListSpace = () => {
                           if (!res.ok) throw new Error('Fetch failed');
                           const data = await res.json();
                           if (data && data.display_name) {
-                            setFormData(prev => ({ ...prev, address: data.display_name }));
+                            setFormData(prev => ({ ...prev, address: data.display_name, lat: latitude, lng: longitude }));
                           }
                         } catch (err) {
                           alert("Failed to fetch address from location.");

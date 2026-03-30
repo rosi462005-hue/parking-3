@@ -37,6 +37,20 @@ async def get_listings(vehicle_type: Optional[str] = None):
     return response.data or []
 
 
+@router.get("/my-listings")
+async def get_my_listings(current=Depends(get_current_user)):
+    """Return all listings created by the logged-in user natively filtering Supabase keys via their token ownership."""
+    user, token = current
+    # Utilize un-restricted user database client traversing identical properties to evaluate all past creation metrics irrespective of present availability triggers
+    response = (
+        supabase.table("listings")
+        .select("*")
+        .eq("owner_id", str(user.id))
+        .order("created_at", desc=True)
+        .execute()
+    )
+    return response.data or []
+
 # ─── GET SINGLE LISTING ──────────────────────────────────────────────────────
 
 @router.get("/{listing_id}", response_model=ListingResponse)
@@ -149,6 +163,19 @@ async def delete_listing(listing_id: str, current=Depends(get_current_user)):
     if is_admin:
         query = db.table("listings").delete().eq("id", listing_id)
     else:
+        # Check for active bookings before deletion
+        active_bookings = (
+            supabase.table("bookings")
+            .select("id")
+            .eq("listing_id", listing_id)
+            .eq("status", "confirmed")
+            .execute()
+        )
+        if active_bookings.data:
+            raise HTTPException(
+                status_code=400, 
+                detail="Cannot delete listing with active bookings. Please cancel bookings or mark as unavailable instead."
+            )
         query = db.table("listings").delete().eq("id", listing_id).eq("owner_id", str(user.id))
         
     response = query.execute()

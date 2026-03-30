@@ -8,6 +8,7 @@ import Home from './pages/Home';
 import SearchPage from './pages/SearchPage';
 import ListPage from './pages/ListPage';
 import ResultsPage from './pages/ResultsPage';
+import OwnerDashboard from './pages/OwnerDashboard';
 
 function App() {
   const [user, setUser] = React.useState(null);
@@ -17,7 +18,7 @@ function App() {
   React.useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second timeout if hanging
+    const timeoutId = setTimeout(() => controller.abort(), 20000); // 20-second timeout if hanging
 
     const checkAuth = async () => {
       try {
@@ -27,7 +28,7 @@ function App() {
           return;
         }
 
-        const response = await fetch('http://localhost:8000/api/auth/me', {
+        const response = await fetch('http://127.0.0.1:8001/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`
           },
@@ -92,7 +93,8 @@ function App() {
                 {user && (
                   <div className="user-menu">
                     <span className="user-greeting">Hi, {user.name}</span>
-                    <button className="btn btn-secondary" onClick={handleLogout}>Logout</button>
+                    <Link to="/dashboard" className="btn btn-secondary" style={{ marginLeft: '10px', textDecoration: 'none' }}>Dashboard</Link>
+                    <button className="btn btn-secondary" onClick={handleLogout} style={{ marginLeft: '10px' }}>Logout</button>
                   </div>
                 )}
               </nav>
@@ -105,6 +107,7 @@ function App() {
                 <Route path="/search" element={<SearchPage />} />
                 <Route path="/list" element={<ListPage />} />
                 <Route path="/results" element={<ResultsPage />} />
+                <Route path="/dashboard" element={<OwnerDashboard />} />
               </Routes>
             </main>
 
