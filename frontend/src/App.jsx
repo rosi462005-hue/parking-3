@@ -15,31 +15,49 @@ function App() {
   const [authMode, setAuthMode] = React.useState('login');
 
   React.useEffect(() => {
+    let isMounted = true;
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8-second timeout if hanging
+
     const checkAuth = async () => {
-      const token = localStorage.getItem('parkshare_token');
-      if (!token) {
-        setIsCheckingAuth(false);
-        return;
-      }
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/auth/me', {
+        const token = localStorage.getItem('parkshare_token');
+        if (!token) {
+          if (isMounted) setIsCheckingAuth(false);
+          return;
+        }
+
+        const response = await fetch('http://localhost:8000/api/auth/me', {
           headers: {
             'Authorization': `Bearer ${token}`
-          }
+          },
+          signal: controller.signal
         });
+
         if (response.ok) {
           const userData = await response.json();
-          setUser(userData);
+          if (isMounted) setUser(userData);
         } else {
           localStorage.removeItem('parkshare_token');
         }
       } catch (err) {
-        console.error('Auth verification failed', err);
+        if (err.name === 'AbortError') {
+          console.log('Auth check aborted due to timeout or unmount.');
+        } else {
+          console.error('Auth verification failed:', err);
+        }
       } finally {
-        setIsCheckingAuth(false);
+        clearTimeout(timeoutId);
+        if (isMounted) setIsCheckingAuth(false);
       }
     };
+
     checkAuth();
+
+    return () => {
+      isMounted = false;
+      controller.abort(); // Cancel hanging request if component unmounts
+    };
   }, []);
 
   const handleLogout = () => {

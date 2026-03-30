@@ -7,7 +7,8 @@ const ListSpace = () => {
     address: '',
     price: '',
     type: 'driveway',
-    description: ''
+    description: '',
+    phone: '' // New phone field
   });
   const [vehicleType, setVehicleType] = useState('both');
   const [image, setImage] = useState(null);
@@ -52,11 +53,22 @@ const ListSpace = () => {
       return;
     }
 
+    // Optional phone validation (must be 10-15 digits if provided)
+    if (formData.phone && !/^\+?[0-9]{10,15}$/.test(formData.phone.replace(/[\s-]/g, ''))) {
+      setError('Please provide a valid phone number (e.g., 9876543210).');
+      return;
+    }
+
+    // Append phone natively to description to bypass rigid backend typings safely
+    const finalDescription = formData.phone 
+      ? `${formData.description || ''}\n\n[Contact: ${formData.phone}]`.trim() 
+      : formData.description || null;
+
     // 2. Form payload with all necessary fields
     const listingData = {
       title: formData.title,
       location: formData.address,
-      description: formData.description || null,
+      description: finalDescription,
       price_per_hour: parsedPrice,
       vehicle_type: vehicleType,
       type: formData.type,
@@ -95,7 +107,7 @@ const ListSpace = () => {
       // Reset form after a delay
       setTimeout(() => {
         setSubmitted(false);
-        setFormData({ title: '', address: '', price: '', type: 'driveway', description: '' });
+        setFormData({ title: '', address: '', price: '', type: 'driveway', description: '', phone: '' });
         setImage(null);
         setImagePreview(null);
       }, 3000);
@@ -192,7 +204,53 @@ const ListSpace = () => {
               </div>
 
               <div className="form-group">
-                <label htmlFor="address">Full Address</label>
+                <label htmlFor="phone">Owner Phone Number (optional)</label>
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  name="phone" 
+                  placeholder="e.g. +91 9876543210" 
+                  value={formData.phone}
+                  onChange={handleChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                  <label htmlFor="address" style={{ margin: 0 }}>Full Address</label>
+                  <button 
+                    type="button" 
+                    className="btn btn-secondary" 
+                    style={{ padding: '4px 8px', fontSize: '0.8rem' }}
+                    onClick={() => {
+                      if (formData.address && !window.confirm("Overwrite current address with your location?")) {
+                        return;
+                      }
+                      if (!navigator.geolocation) {
+                        alert("Geolocation is not supported by your browser.");
+                        return;
+                      }
+                      navigator.geolocation.getCurrentPosition(async (pos) => {
+                        try {
+                          const { latitude, longitude } = pos.coords;
+                          // Reverse geocode via free Nominatim API
+                          const res = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`);
+                          if (!res.ok) throw new Error('Fetch failed');
+                          const data = await res.json();
+                          if (data && data.display_name) {
+                            setFormData(prev => ({ ...prev, address: data.display_name }));
+                          }
+                        } catch (err) {
+                          alert("Failed to fetch address from location.");
+                        }
+                      }, () => {
+                        alert("Permission denied or location fetch failed.");
+                      });
+                    }}
+                  >
+                    📍 Use Current Location
+                  </button>
+                </div>
                 <input 
                   type="text" 
                   id="address" 

@@ -19,6 +19,10 @@ const BookingModal = ({ listing, onClose, onConfirm }) => {
   const rawDurationStr = String(duration).replace(/[^0-9.]/g, '');
   const durationParsed = parseFloat(rawDurationStr);
 
+  // 2.5 Extract phone number from description if stored safely inside [Contact: ...]
+  const phoneMatch = listing.description?.match(/\[Contact:\s*(.+?)\]/);
+  const ownerPhone = phoneMatch ? phoneMatch[1] : null;
+
   // 3. Fix calculation & 4. Add fallback to 0 instead of NaN
   let totalCost = 0;
   if (!isNaN(rateParsed) && !isNaN(durationParsed)) {
@@ -94,9 +98,23 @@ const BookingModal = ({ listing, onClose, onConfirm }) => {
 
             {/* Info grid */}
             <div className="bm-info-grid">
+              {ownerPhone && (
+                <div className="bm-info-item" style={{ gridColumn: '1 / -1', background: '#eefbfa', padding: '10px', borderRadius: '6px' }}>
+                  <span className="bm-info-label">📞 Owner Contact</span>
+                  <span className="bm-info-value" style={{ fontWeight: 'bold' }}>{ownerPhone}</span>
+                </div>
+              )}
               <div className="bm-info-item">
                 <span className="bm-info-label">📍 Location</span>
-                <span className="bm-info-value">{listing.location}</span>
+                <a 
+                  href={`https://www.google.com/maps?q=${encodeURIComponent(listing.location)}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bm-info-value" 
+                  style={{ color: '#007bff', textDecoration: 'underline' }}
+                >
+                  {listing.location}
+                </a>
               </div>
               <div className="bm-info-item">
                 <span className="bm-info-label">💵 Rate</span>

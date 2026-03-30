@@ -27,27 +27,44 @@ const AuthModal = ({ isOpen, onClose, mode, setMode, onLogin }) => {
     setIsLoading(true);
     setError('');
 
-    const validationError = validate();
-    if (validationError) {
-      setError(validationError);
-      setIsLoading(false);
-      return;
-    }
-
     try {
+      const validationError = validate();
+      if (validationError) {
+        setError(validationError);
+        return;
+      }
+
       const endpoint = mode === 'login' ? '/api/auth/login' : '/api/auth/register';
       const body = mode === 'login' ? { email, password } : { name, email, password };
 
-      const response = await fetch(`http://127.0.0.1:8000${endpoint}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
-      });
+      let response;
+      for (let attempt = 1; attempt <= 2; attempt++) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // Increased 15s timeout
+        try {
+          response = await fetch(`http://localhost:8000${endpoint}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          break; // Break loop on success
+        } catch (err) {
+          clearTimeout(timeoutId);
+          if (attempt === 2) throw err; // Throw on final failed attempt
+        }
+      }
 
-      const data = await response.json();
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseErr) {
+        throw new Error('Failed to parse server response.');
+      }
 
       if (!response.ok) {
-        throw new Error(data.detail || data.error || 'Something went wrong');
+        throw new Error(data.detail || data.error || 'Authentication failed');
       }
 
       // Store JWT for subsequent authenticated requests
@@ -56,11 +73,15 @@ const AuthModal = ({ isOpen, onClose, mode, setMode, onLogin }) => {
       }
 
       // Success
-      onLogin(data.user || { name: email.split('@')[0] });
-      onClose();
+      if (onLogin) onLogin(data.user || { name: email.split('@')[0] });
+      if (onClose) onClose();
       
     } catch (err) {
-      setError(err.message);
+      if (err.name === 'AbortError') {
+        setError('Request timed out. Please try checking your connection.');
+      } else {
+        setError(err.message || 'Something went wrong');
+      }
     } finally {
       setIsLoading(false);
     }

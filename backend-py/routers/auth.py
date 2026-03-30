@@ -8,7 +8,7 @@ router = APIRouter(prefix="/api/auth", tags=["auth"])
 
 
 @router.post("/register", response_model=TokenResponse, status_code=201)
-async def register(body: UserRegister):
+def register(body: UserRegister):
     """Create a new Supabase Auth user and return a JWT token."""
     try:
         response = supabase.auth.sign_up({
@@ -42,7 +42,7 @@ async def register(body: UserRegister):
 
 
 @router.post("/login", response_model=TokenResponse)
-async def login(body: UserLogin):
+def login(body: UserLogin):
     """Authenticate with email + password and return a JWT token."""
     try:
         response = supabase.auth.sign_in_with_password({
@@ -78,7 +78,7 @@ async def login(body: UserLogin):
 
 
 @router.get("/me", response_model=UserOut)
-async def get_me(current=Depends(get_current_user)):
+def get_me(current=Depends(get_current_user)):
     """Return the currently authenticated user's profile."""
     user, token = current
     profile_resp = supabase.table("profiles").select("name").eq("id", str(user.id)).single().execute()

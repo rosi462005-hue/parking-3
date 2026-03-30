@@ -2,7 +2,7 @@ from fastapi import Header, HTTPException, status
 from database import supabase
 
 
-async def get_current_user(authorization: str = Header(...)):
+def get_current_user(authorization: str = Header(...)):
     """FastAPI dependency — validates the Bearer token from Supabase Auth
     and returns (user, raw_token) for downstream use."""
     if not authorization.startswith("Bearer "):
