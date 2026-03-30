@@ -5,7 +5,9 @@ import ListingCard from '../components/ListingCard';
 import BookingModal from '../components/BookingModal';
 
 const SearchPage = () => {
-  const [listings, setListings] = useState([]);
+  const [allListings, setAllListings] = useState([]);
+  const [nearbyListings, setNearbyListings] = useState(null);
+  const [hasSearched, setHasSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
@@ -16,20 +18,18 @@ const SearchPage = () => {
   const fetchAllListings = async () => {
     setLoading(true);
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/listings/');
+      const response = await fetch('http://localhost:8000/api/listings/');
       if (!response.ok) throw new Error('Failed to fetch listings');
       const data = await response.json();
-      setListings(data);
+      setAllListings(data);
+      return data;
     } catch (err) {
       setError(err.message);
+      return null;
     } finally {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    fetchAllListings();
-  }, []);
 
   const getDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371;
@@ -46,8 +46,12 @@ const SearchPage = () => {
   const deg2rad = (deg) => deg * (Math.PI / 180);
 
   const handleFindSpace = () => {
+    setHasSearched(true);
     setSearching(true);
     setError(null);
+    setNearbyListings(null);
+
+    console.log("Validating geolocation support...");
 
     if (!navigator.geolocation) {
       setError("Geolocation is not supported by your browser.");
@@ -55,27 +59,55 @@ const SearchPage = () => {
       return;
     }
 
+    console.log("Requesting browser geolocation permission...");
+
     navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setUserLocation({ lat: latitude, lng: longitude });
+      async (position) => {
+        console.log("Geolocation permission granted! Coordinates:", position.coords);
+        const { latitude: userLat, longitude: userLng } = position.coords;
+        setUserLocation({ lat: userLat, lng: userLng });
         
-        // Sort and filter existing listings by distance (e.g. <= 5km)
-        const processed = [...listings]
-          .map(spot => ({
-            ...spot,
-            distance: getDistance(latitude, longitude, spot.lat, spot.lng)
-          }))
-          .filter(spot => isNaN(spot.distance) || spot.distance <= 5) // Handle spots without lat/lng gracefully or within 5km
-          .sort((a, b) => (a.distance || Infinity) - (b.distance || Infinity));
+        // Fetch listings AFTER getting location to not block the browser permission popup
+        const data = await fetchAllListings();
+        if (!data) {
+          setSearching(false);
+          return;
+        }
+
+        // Filter and sort listings gracefully without mutating original array
+        const processed = data
+          .map(spot => {
+            const spotLat = spot.lat !== undefined ? spot.lat : spot.latitude;
+            const spotLng = spot.lng !== undefined ? spot.lng : spot.longitude;
+            
+            if (spotLat == null || spotLng == null) {
+              return { ...spot, distance: NaN };
+            }
+            
+            return {
+              ...spot,
+              distance: getDistance(userLat, userLng, parseFloat(spotLat), parseFloat(spotLng))
+            };
+          })
+          .filter(spot => !isNaN(spot.distance) && spot.distance <= 5)
+          .sort((a, b) => a.distance - b.distance);
         
-        setListings(processed);
+        setNearbyListings(processed);
         setSearching(false);
       },
       (geoError) => {
+        console.error("Geolocation error occurred:", geoError);
         setSearching(false);
-        setError("Location access denied. Please enable location to find nearby spaces.");
-      }
+        let errorMessage = "Location access denied. Please enable location to find nearby spaces.";
+        // Handle explicit error code overrides
+        if (geoError.code === geoError.TIMEOUT) {
+          errorMessage = "Location request timed out. Please try again.";
+        } else if (geoError.code === geoError.POSITION_UNAVAILABLE) {
+          errorMessage = "Location information is unavailable.";
+        }
+        setError(errorMessage);
+      },
+      { timeout: 10000 } // adding fallback 10s timeout setting
     );
   };
 
@@ -91,22 +123,49 @@ const SearchPage = () => {
               onClick={handleFindSpace} 
               disabled={searching}
             >
-              {searching ? 'Sorting by Distance...' : 'Find Space Nearby'}
+              {searching ? 'Fetching your location...' : 'Find Space Nearby'}
             </button>
           </div>
         </div>
 
         <div className="results-container">
-          {loading && <div className="status-message">Loading parking spots...</div>}
-          {error && <div className="status-message error">{error}</div>}
-
-          {!loading && !error && listings.length === 0 && (
-            <div className="status-message warning">No spaces found in your area. Be the first to list one!</div>
+          {!hasSearched && !loading && !error && (
+            <div className="status-message info" style={{ color: '#007bff', marginBottom: '15px' }}>
+              Click 'Find Space Nearby' to see available parking spots.
+            </div>
           )}
 
-          {!loading && !error && listings.length > 0 && (
+          {loading && <div className="status-message">Loading parking spots...</div>}
+          {error && (
+            <div className="status-message error">
+              <p>{error}</p>
+              <div style={{ marginTop: '15px', display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                <input 
+                  type="text" 
+                  placeholder="Enter location manually..." 
+                  className="form-input" 
+                  style={{ maxWidth: '300px' }}
+                />
+                <button className="btn btn-secondary" onClick={() => alert('Manual search coming soon!')}>
+                  Search
+                </button>
+              </div>
+            </div>
+          )}
+
+          {nearbyListings && !loading && !error && (
+            <div className="status-message success" style={{ color: 'green', marginBottom: '15px', fontWeight: 'bold' }}>
+              Showing nearby spaces
+            </div>
+          )}
+
+          {hasSearched && !loading && !error && nearbyListings && nearbyListings.length === 0 && (
+            <div className="status-message warning">No spaces found in your area.</div>
+          )}
+
+          {hasSearched && !loading && !error && nearbyListings && nearbyListings.length > 0 && (
             <div className="listings-grid">
-              {listings.map(listing => (
+              {nearbyListings.map(listing => (
                 <div key={listing.id} className="listing-result-wrapper">
                   <ListingCard listing={listing} onClick={(l) => setSelectedListing(l)} />
                   {listing.distance !== undefined && (
