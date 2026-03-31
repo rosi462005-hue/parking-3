@@ -44,7 +44,7 @@ const BookingModal = ({ listing, onClose, onConfirm }) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('parkshare_token');
-      const res = await fetch('http://127.0.0.1:8000/api/bookings/', {
+      const res = await fetch('http://127.0.0.1:8001/api/bookings/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -31,7 +31,7 @@ const ListingCard = ({ listing, onClick, onDelete }) => {
     
     setIsDeleting(true);
     try {
-      const res = await fetch(`http://127.0.0.1:8000/api/listings/${listing.id}`, {
+      const res = await fetch(`http://127.0.0.1:8001/api/listings/${listing.id}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${token}`

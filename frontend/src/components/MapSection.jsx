@@ -11,7 +11,7 @@ const MapSection = () => {
   useEffect(() => {
     const fetchListings = async () => {
       try {
-        const response = await fetch('http://127.0.0.1:8000/api/listings/');
+        const response = await fetch('http://127.0.0.1:8001/api/listings/');
         if (!response.ok) {
           throw new Error('Failed to fetch listings');
         }
