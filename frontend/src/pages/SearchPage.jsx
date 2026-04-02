@@ -16,10 +16,22 @@ const SearchPage = () => {
   const [userVehicle, setUserVehicle] = useState('both');
   const navigate = useNavigate();
 
-  const fetchAllListings = async () => {
+  const fetchAllListings = async (userLat = null, userLng = null, vehicleType = null) => {
     setLoading(true);
     try {
-      const response = await fetch('http://127.0.0.1:8001/api/listings/');
+      let url = 'http://127.0.0.1:8001/api/listings/';
+      const params = new URLSearchParams();
+      if (userLat !== null && userLng !== null) {
+        params.append('lat', userLat);
+        params.append('lng', userLng);
+      }
+      if (vehicleType) {
+        params.append('vehicle_type', vehicleType);
+      }
+      if (params.toString()) {
+        url += '?' + params.toString();
+      }
+      const response = await fetch(url);
       if (!response.ok) throw new Error('Failed to fetch listings');
       const data = await response.json();
       setAllListings(data);
@@ -68,54 +80,29 @@ const SearchPage = () => {
       setUserLocation({ lat: userLat, lng: userLng });
 
       // 2. Safely call API only AFTER valid coordinates are obtained
-      const data = await fetchAllListings();
+      const data = await fetchAllListings(userLat, userLng, userVehicle);
       if (!data) {
         setSearching(false);
         return;
       }
       console.log("Debug: All fetched listings from API:", data);
 
-      // 3. Process, filter, and sort location distances natively
-      const processed = data
-        .map(spot => {
-          const spotLat = spot.lat !== undefined ? spot.lat : spot.latitude;
-          const spotLng = spot.lng !== undefined ? spot.lng : spot.longitude;
-          
-          if (spotLat == null || spotLng == null) {
-            console.log(`Debug: Listing ${spot.id} missing coordinates. Distance set to NaN.`);
-            return { ...spot, distance: NaN };
-          }
-          
-          const distance = getDistance(userLat, userLng, parseFloat(spotLat), parseFloat(spotLng));
-          console.log(`Debug: Listing ${spot.id} is ${distance.toFixed(2)}km from user`);
-          
-          return { ...spot, distance };
-        })
-        .filter(spot => {
-          // Relaxed filtering: allow NaN distances (missing coords) OR within 50km
-          const withinRadius = isNaN(spot.distance) || spot.distance <= 50;
-          
-          // Apply vehicle type logic:
-          const svt = spot.vehicle_type || spot.vehicleType;
-          const vehicleMatch = !svt || svt === 'both' || userVehicle === 'both' || svt === userVehicle;
-          
-          return withinRadius && vehicleMatch;
-        })
-        .sort((a, b) => {
-          if (isNaN(a.distance)) return 1;
-          if (isNaN(b.distance)) return -1;
-          return a.distance - b.distance;
-        });
+      // 3. Add distance for display (already sorted by backend)
+      const processed = data.map(spot => {
+        const spotLat = spot.lat !== undefined ? spot.lat : spot.latitude;
+        const spotLng = spot.lng !== undefined ? spot.lng : spot.longitude;
+        
+        let distance = NaN;
+        if (spotLat != null && spotLng != null) {
+          distance = getDistance(userLat, userLng, parseFloat(spotLat), parseFloat(spotLng));
+        }
+        
+        return { ...spot, distance };
+      });
       
-      console.log("Debug: Filtered listings to display:", processed);
+      console.log("Debug: Processed listings:", processed);
       
-      // 4. Safe fallback if nothing found within 50km radius
-      if (processed.length === 0) {
-        console.warn("Debug: No spaces found within 50km (including vehicles filter). Firing safe fallback rendering everything.");
-        setNearbyListings(data);
-      } else {
-        setNearbyListings(processed);
-      }
+      setNearbyListings(processed);
 
     } catch (err) {
       console.error("Error resolving nearby spaces:", err);

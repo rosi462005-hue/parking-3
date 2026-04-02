@@ -4,10 +4,21 @@ from typing import Optional
 from database import supabase, get_user_client, SUPABASE_URL
 from models import ListingCreate, ListingResponse, ListingUpdate
 from dependencies import get_current_user
+import math
 
 router = APIRouter(prefix="/api/listings", tags=["listings"])
 
 BUCKET = "listing-images"
+
+
+def calculate_distance(lat1, lng1, lat2, lng2):
+    """Calculate distance between two points in km using haversine formula."""
+    R = 6371  # Earth radius in km
+    dlat = math.radians(lat2 - lat1)
+    dlng = math.radians(lng2 - lng1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlng / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    return R * c
 
 
 def _upload_image(file: UploadFile, owner_id: str) -> str:
@@ -27,14 +38,25 @@ def _upload_image(file: UploadFile, owner_id: str) -> str:
 # ─── GET ALL LISTINGS ────────────────────────────────────────────────────────
 
 @router.get("/", response_model=list[ListingResponse])
-async def get_listings(vehicle_type: Optional[str] = None):
-    """Return all available listings. Optionally filter by vehicle_type."""
+async def get_listings(vehicle_type: Optional[str] = None, lat: Optional[float] = None, lng: Optional[float] = None):
+    """Return all available listings. Optionally filter by vehicle_type. If lat/lng provided, sort by distance."""
     query = supabase.table("listings").select("*").eq("available", True).order("created_at", desc=True)
     if vehicle_type:
         # Match exact type OR 'both'
         query = query.in_("vehicle_type", [vehicle_type, "both"])
     response = query.execute()
-    return response.data or []
+    listings = response.data or []
+
+    if lat is not None and lng is not None:
+        # Sort by distance
+        for listing in listings:
+            if listing.get("lat") is not None and listing.get("lng") is not None:
+                listing["distance"] = calculate_distance(lat, lng, listing["lat"], listing["lng"])
+            else:
+                listing["distance"] = float('inf')  # Put at end
+        listings.sort(key=lambda x: x.get("distance", float('inf')))
+
+    return listings
 
 
 @router.get("/my-listings")
